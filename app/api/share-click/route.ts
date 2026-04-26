@@ -22,9 +22,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No shareId" }, { status: 400 });
     }
 
+    console.log("shareId:", shareId.trim());
+
     const result = await db.runTransaction(async (tx) => {
       const shareRef = db.collection("shareReports").doc(shareId.trim());
       const shareSnap = await tx.get(shareRef);
+
+      console.log("share exists:", shareSnap.exists);
+      console.log("share data:", shareSnap.data());
 
       if (!shareSnap.exists) {
         return "not_found" as const;
@@ -43,6 +48,9 @@ export async function POST(req: Request) {
       const ownerUid = data.ownerUid;
       const reportId = data.reportId;
 
+      console.log("ownerUid:", ownerUid);
+      console.log("reportId:", reportId);
+
       if (typeof ownerUid !== "string" || typeof reportId !== "string") {
         return "invalid" as const;
       }
@@ -50,6 +58,11 @@ export async function POST(req: Request) {
       const now = FieldValue.serverTimestamp();
       const userRef = db.collection("users").doc(ownerUid);
       const reportRef = userRef.collection("impressionReports").doc(reportId);
+
+      console.log(
+        "report path:",
+        `users/${ownerUid}/impressionReports/${reportId}`
+      );
 
       tx.update(shareRef, {
         clicked: true,
@@ -83,7 +96,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, ok: true, status: result });
   } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error("share-click error:", e);
+    return NextResponse.json({ error: String(e) }, { status: 500 });
   }
 }

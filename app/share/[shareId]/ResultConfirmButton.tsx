@@ -6,6 +6,7 @@ type Status = "idle" | "loading" | "success" | "error";
 
 export function ResultConfirmButton({ shareId }: { shareId: string }) {
   const [status, setStatus] = useState<Status>("idle");
+  const [message, setMessage] = useState("");
 
   const handleClick = async () => {
     if (status === "loading" || status === "success") return;
@@ -20,17 +21,20 @@ export function ResultConfirmButton({ shareId }: { shareId: string }) {
         },
         body: JSON.stringify({ shareId }),
       });
-      const payload = (await res.json().catch(() => null)) as {
-        success?: boolean;
-      } | null;
+      const text = await res.text();
 
-      if (res.ok && payload?.success === true) {
+      if (res.ok) {
         setStatus("success");
+        setMessage(
+          "공유 확인이 완료되었습니다. 앱으로 돌아가 추가 지표를 확인하세요."
+        );
       } else {
         setStatus("error");
+        setMessage(text || "공유 확인에 실패했습니다. 잠시 후 다시 시도해주세요.");
       }
     } catch {
       setStatus("error");
+      setMessage("공유 확인에 실패했습니다. 잠시 후 다시 시도해주세요.");
     }
   };
 
@@ -47,13 +51,13 @@ export function ResultConfirmButton({ shareId }: { shareId: string }) {
 
       {status === "success" ? (
         <p className="mt-4 text-sm font-semibold leading-6 text-white/70">
-          공유 확인이 완료되었습니다. 앱으로 돌아가 추가 지표를 확인하세요.
+          {message}
         </p>
       ) : null}
 
       {status === "error" ? (
         <p className="mt-4 text-sm font-semibold leading-6 text-red-200">
-          공유 확인에 실패했습니다. 잠시 후 다시 시도해주세요.
+          {message}
         </p>
       ) : null}
     </>
