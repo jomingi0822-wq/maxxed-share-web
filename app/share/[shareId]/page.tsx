@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ResultConfirmButton } from "./ResultConfirmButton";
 
 export async function generateMetadata({
   params,
@@ -31,7 +32,7 @@ export default async function SharePage({
 }: {
   params: Promise<{ shareId: string }>;
 }) {
-  const { shareId } = await params;
+  await params;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-black px-6 text-white">
@@ -49,12 +50,7 @@ export default async function SharePage({
           </p>
         </div>
 
-        <a
-          href={`/?shareId=${shareId}`}
-          className="block rounded-2xl bg-white px-5 py-4 font-bold text-black"
-        >
-          결과 보러가기
-        </a>
+        <ResultConfirmButton />
 
         <p className="mt-4 text-xs text-white/40">
           실제 분석 이미지는 미리보기에 표시되지 않습니다.
