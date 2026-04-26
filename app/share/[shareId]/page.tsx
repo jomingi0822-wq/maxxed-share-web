@@ -43,7 +43,7 @@ export default async function SharePage({
           친구가 공유한 AI 첫인상 분석
         </div>
 
-        <h1 className="whitespace-nowrap text-[24px] font-black leading-tight tracking-normal">
+        <h1 className="whitespace-nowrap text-[30px] font-black leading-tight tracking-normal">
           당신의 첫인상은 몇점인가요?
         </h1>
         <p className="mt-4 text-base font-semibold leading-7 text-white/70">
