@@ -74,7 +74,7 @@ export default async function SharePage({
         </div>
 
         <p className="mt-6 text-center text-sm font-semibold leading-6 text-white/54">
-          본인 외모의 최고점을 향하여, 길을 닦는 Maxxed.
+          외모의 최고점을 향하여, 길을 닦는 Maxxed.
         </p>
       </section>
     </main>
