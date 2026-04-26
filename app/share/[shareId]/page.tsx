@@ -3,7 +3,7 @@ import { ResultConfirmButton } from "./ResultConfirmButton";
 
 const teaserItems = ["첫인상 점수", "상위 퍼센트", "매력 포인트", "개선 루틴"];
 const SHARE_BASE_URL = "https://maxxed-share-web.vercel.app";
-const SHARE_PREVIEW_IMAGE = `${SHARE_BASE_URL}/share-preview-v2.png`;
+const SHARE_PREVIEW_IMAGE = `${SHARE_BASE_URL}/share-preview-v3.png`;
 
 export async function generateMetadata({
   params,
