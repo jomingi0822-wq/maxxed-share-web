@@ -27,9 +27,7 @@ export function ResultConfirmButton({ shareId }: { shareId: string }) {
 
       if (res.ok) {
         setStatus("success");
-        setMessage(
-          "공유 확인이 완료되었습니다. 친구의 숨겨진 지표가 해금되었습니다."
-        );
+        setMessage("친구가 링크를 열면 지표 2개가 해금됩니다.");
       } else {
         setStatus("error");
         setMessage(text || "공유 확인에 실패했습니다. 잠시 후 다시 시도해주세요.");
