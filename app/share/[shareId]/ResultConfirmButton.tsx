@@ -7,28 +7,28 @@ type Status = "idle" | "loading" | "success" | "error";
 export function ResultConfirmButton({ shareId }: { shareId: string }) {
   const [status, setStatus] = useState<Status>("idle");
 
-  const confirmShare = async () => {
+  const handleClick = async () => {
     if (status === "loading" || status === "success") return;
 
     setStatus("loading");
 
     try {
-      const response = await fetch("/api/share-click", {
+      const res = await fetch("/api/share-click", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ shareId }),
       });
-      const payload = (await response.json().catch(() => null)) as {
-        ok?: boolean;
+      const payload = (await res.json().catch(() => null)) as {
+        success?: boolean;
       } | null;
 
-      if (!response.ok || payload?.ok !== true) {
-        throw new Error("share click failed");
+      if (res.ok && payload?.success === true) {
+        setStatus("success");
+      } else {
+        setStatus("error");
       }
-
-      setStatus("success");
     } catch {
       setStatus("error");
     }
@@ -38,7 +38,7 @@ export function ResultConfirmButton({ shareId }: { shareId: string }) {
     <>
       <button
         type="button"
-        onClick={confirmShare}
+        onClick={handleClick}
         disabled={status === "loading" || status === "success"}
         className="block w-full rounded-2xl bg-white px-5 py-4 font-bold text-black disabled:cursor-default disabled:opacity-70"
       >

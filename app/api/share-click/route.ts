@@ -1,6 +1,6 @@
 import { FieldValue } from "firebase-admin/firestore";
-import { NextRequest, NextResponse } from "next/server";
-import { getAdminDb } from "@/lib/firebaseAdmin";
+import { NextResponse } from "next/server";
+import { db } from "@/lib/firebaseAdmin";
 
 function isBotUserAgent(userAgent: string) {
   return /bot|crawler|spider|preview|facebookexternalhit|twitterbot|discordbot|slackbot|kakaotalk-scrap|telegrambot|whatsapp|line/i.test(
@@ -8,81 +8,82 @@ function isBotUserAgent(userAgent: string) {
   );
 }
 
-export async function POST(request: NextRequest) {
-  if (isBotUserAgent(request.headers.get("user-agent") || "")) {
-    return NextResponse.json({ ok: true, ignored: true });
-  }
-
-  const body = (await request.json().catch(() => null)) as {
-    shareId?: unknown;
-  } | null;
-  const shareId = typeof body?.shareId === "string" ? body.shareId.trim() : "";
-
-  if (!shareId) {
-    return NextResponse.json(
-      { ok: false, message: "shareId가 필요합니다." },
-      { status: 400 }
-    );
-  }
-
-  const db = getAdminDb();
-
-  const result = await db.runTransaction(async (transaction) => {
-    const shareRef = db.collection("shareReports").doc(shareId);
-    const shareSnap = await transaction.get(shareRef);
-
-    if (!shareSnap.exists) {
-      return { status: "missing" as const };
+export async function POST(req: Request) {
+  try {
+    if (isBotUserAgent(req.headers.get("user-agent") || "")) {
+      return NextResponse.json({ success: true, ok: true, ignored: true });
     }
 
-    const shareData = shareSnap.data() || {};
-    const ownerUid = shareData.ownerUid;
-    const reportId = shareData.reportId || "latest";
+    const { shareId } = (await req.json().catch(() => ({}))) as {
+      shareId?: unknown;
+    };
 
-    if (typeof ownerUid !== "string" || typeof reportId !== "string") {
-      return { status: "invalid" as const };
+    if (typeof shareId !== "string" || !shareId.trim()) {
+      return NextResponse.json({ error: "No shareId" }, { status: 400 });
     }
 
-    if (shareData.clicked === true || shareData.unlocked === true) {
-      return { status: "already_unlocked" as const };
-    }
+    const result = await db.runTransaction(async (tx) => {
+      const shareRef = db.collection("shareReports").doc(shareId.trim());
+      const shareSnap = await tx.get(shareRef);
 
-    const now = FieldValue.serverTimestamp();
-    const ownerRef = db.collection("users").doc(ownerUid);
-    const reportRef = ownerRef.collection("impressionReports").doc(reportId);
+      if (!shareSnap.exists) {
+        return "not_found" as const;
+      }
 
-    transaction.update(shareRef, {
-      clicked: true,
-      clickedAt: now,
-      unlocked: true,
-      unlockedAt: now,
+      const data = shareSnap.data();
+
+      if (!data) {
+        return "not_found" as const;
+      }
+
+      if (data.unlocked === true || data.clicked === true) {
+        return "already_unlocked" as const;
+      }
+
+      const ownerUid = data.ownerUid;
+      const reportId = data.reportId;
+
+      if (typeof ownerUid !== "string" || typeof reportId !== "string") {
+        return "invalid" as const;
+      }
+
+      const now = FieldValue.serverTimestamp();
+      const userRef = db.collection("users").doc(ownerUid);
+      const reportRef = userRef.collection("impressionReports").doc(reportId);
+
+      tx.update(shareRef, {
+        clicked: true,
+        unlocked: true,
+        clickedAt: now,
+        unlockedAt: now,
+      });
+      tx.set(
+        reportRef,
+        {
+          extraMetricsUnlocked: true,
+          updatedAt: now,
+        },
+        { merge: true }
+      );
+      tx.set(
+        userRef,
+        {
+          impressionSharedMetricsUnlocked: true,
+          shareUnlockCount: FieldValue.increment(1),
+        },
+        { merge: true }
+      );
+
+      return "unlocked" as const;
     });
-    transaction.set(
-      reportRef,
-      {
-        extraMetricsUnlocked: true,
-        updatedAt: now,
-      },
-      { merge: true }
-    );
-    transaction.set(
-      ownerRef,
-      {
-        impressionSharedMetricsUnlocked: true,
-        shareUnlockCount: FieldValue.increment(1),
-      },
-      { merge: true }
-    );
 
-    return { status: "unlocked" as const };
-  });
+    if (result === "not_found" || result === "invalid") {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
 
-  if (result.status === "missing" || result.status === "invalid") {
-    return NextResponse.json(
-      { ok: false, message: "유효하지 않은 공유 링크입니다." },
-      { status: 404 }
-    );
+    return NextResponse.json({ success: true, ok: true, status: result });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true, status: result.status });
 }
