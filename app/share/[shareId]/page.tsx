@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { ResultConfirmButton } from "./ResultConfirmButton";
 
 const teaserItems = ["첫인상 점수", "상위 퍼센트", "매력 포인트", "개선 루틴"];
+const SHARE_BASE_URL = "https://maxxed-share-web.vercel.app";
+const SHARE_PREVIEW_IMAGE = `${SHARE_BASE_URL}/share-preview-v2.png`;
 
 export async function generateMetadata({
   params,
@@ -16,15 +18,22 @@ export async function generateMetadata({
     openGraph: {
       title: "AI가 보는 첫인상 점수, 확인해보세요",
       description: "MAXXED에서 얼굴 인상과 개선 루틴을 분석해보세요.",
-      images: ["/share-preview.png"],
-      url: `/share/${shareId}`,
+      images: [
+        {
+          url: SHARE_PREVIEW_IMAGE,
+          width: 1200,
+          height: 630,
+          alt: "MAXXED AI 첫인상 분석",
+        },
+      ],
+      url: `${SHARE_BASE_URL}/share/${shareId}`,
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: "AI가 보는 첫인상 점수, 확인해보세요",
       description: "MAXXED에서 얼굴 인상과 개선 루틴을 분석해보세요.",
-      images: ["/share-preview.png"],
+      images: [SHARE_PREVIEW_IMAGE],
     },
   };
 }
