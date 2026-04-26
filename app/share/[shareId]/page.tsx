@@ -43,15 +43,16 @@ export default async function SharePage({
           친구가 공유한 AI 첫인상 분석
         </div>
 
-        <h1 className="text-4xl font-black leading-tight tracking-normal">
+        <h1 className="whitespace-nowrap text-[21px] font-black leading-tight tracking-normal">
           당신의 첫인상은 몇점인가요?
         </h1>
         <p className="mt-4 text-base font-semibold leading-7 text-white/70">
           상위 몇 %인지 직접 확인해보세요.
         </p>
         <p className="mt-3 text-sm leading-6 text-white/60">
-          MAXXED는 얼굴 인상, 분위기, 매력 포인트를 분석하고 매일 개선
-          루틴까지 제공하는 외모 개선 앱입니다.
+          Maxxed는 얼굴 인상, 분위기, 매력 포인트를 분석하고
+          <br />
+          매일 개선 루틴까지 제공하는 외모 개선 앱입니다.
         </p>
 
         <div className="mt-7 grid grid-cols-2 gap-3">
