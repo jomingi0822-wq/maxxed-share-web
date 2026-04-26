@@ -38,14 +38,12 @@ export async function POST(request: NextRequest) {
     const shareData = shareSnap.data() || {};
     const ownerUid = shareData.ownerUid;
     const reportId = shareData.reportId || "latest";
-    const alreadyUnlocked =
-      shareData.clicked === true || shareData.unlocked === true;
 
-    if (!ownerUid || typeof ownerUid !== "string") {
+    if (typeof ownerUid !== "string" || typeof reportId !== "string") {
       return { status: "invalid" as const };
     }
 
-    if (alreadyUnlocked) {
+    if (shareData.clicked === true || shareData.unlocked === true) {
       return { status: "already_unlocked" as const };
     }
 
@@ -63,7 +61,7 @@ export async function POST(request: NextRequest) {
       reportRef,
       {
         extraMetricsUnlocked: true,
-        updatedAt: new Date().toISOString(),
+        updatedAt: now,
       },
       { merge: true }
     );

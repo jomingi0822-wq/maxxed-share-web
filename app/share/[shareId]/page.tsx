@@ -32,7 +32,7 @@ export default async function SharePage({
 }: {
   params: Promise<{ shareId: string }>;
 }) {
-  await params;
+  const { shareId } = await params;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-black px-6 text-white">
@@ -50,7 +50,7 @@ export default async function SharePage({
           </p>
         </div>
 
-        <ResultConfirmButton />
+        <ResultConfirmButton shareId={shareId} />
 
         <p className="mt-4 text-xs text-white/40">
           실제 분석 이미지는 미리보기에 표시되지 않습니다.
