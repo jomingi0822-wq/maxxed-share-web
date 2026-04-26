@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 
+const APP_DOWNLOAD_URL = "";
+
 type Status = "idle" | "loading" | "success" | "error";
 
 export function ResultConfirmButton({ shareId }: { shareId: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
 
-  const handleClick = async () => {
+  const handleShareConfirm = async () => {
     if (status === "loading" || status === "success") return;
 
     setStatus("loading");
@@ -26,7 +28,7 @@ export function ResultConfirmButton({ shareId }: { shareId: string }) {
       if (res.ok) {
         setStatus("success");
         setMessage(
-          "공유 확인이 완료되었습니다. 앱으로 돌아가 추가 지표를 확인하세요."
+          "공유 확인이 완료되었습니다. 친구의 숨겨진 지표가 해금되었습니다."
         );
       } else {
         setStatus("error");
@@ -38,28 +40,43 @@ export function ResultConfirmButton({ shareId }: { shareId: string }) {
     }
   };
 
+  const handleDownload = () => {
+    if (!APP_DOWNLOAD_URL) return;
+
+    window.location.href = APP_DOWNLOAD_URL;
+  };
+
   return (
-    <>
+    <div className="space-y-3">
       <button
         type="button"
-        onClick={handleClick}
+        onClick={handleShareConfirm}
         disabled={status === "loading" || status === "success"}
-        className="block w-full rounded-2xl bg-white px-5 py-4 font-bold text-black disabled:cursor-default disabled:opacity-70"
+        className="block min-h-[52px] w-full rounded-2xl bg-white px-5 py-4 text-sm font-black text-black disabled:cursor-default disabled:opacity-70"
       >
-        {status === "loading" ? "확인 중..." : "결과 확인하기"}
+        {status === "loading"
+          ? "공유 확인 중..."
+          : "공유 확인하고 친구 지표 해금하기"}
       </button>
 
-      {status === "success" ? (
-        <p className="mt-4 text-sm font-semibold leading-6 text-white/70">
-          {message}
-        </p>
-      ) : null}
+      <button
+        type="button"
+        onClick={handleDownload}
+        disabled={!APP_DOWNLOAD_URL}
+        className="block min-h-[52px] w-full rounded-2xl border border-white/15 bg-white/10 px-5 py-4 text-sm font-black text-white disabled:cursor-not-allowed disabled:text-white/45"
+      >
+        {APP_DOWNLOAD_URL ? "나도 MAXXED 시작하기" : "앱 다운로드 준비 중"}
+      </button>
 
-      {status === "error" ? (
-        <p className="mt-4 text-sm font-semibold leading-6 text-red-200">
+      {message ? (
+        <p
+          className={`text-center text-sm font-semibold leading-6 ${
+            status === "error" ? "text-red-200" : "text-white/70"
+          }`}
+        >
           {message}
         </p>
       ) : null}
-    </>
+    </div>
   );
 }
