@@ -74,7 +74,7 @@ export default async function SharePage({
         </div>
 
         <p className="mt-6 text-center text-sm font-semibold leading-6 text-white/54">
-          친구처럼 나도 AI 분석 받고 숨겨진 개선 포인트를 확인해보세요.
+          본인 외모의 최고점을 향하여, 길을 닦는 Maxxed.
         </p>
       </section>
     </main>
